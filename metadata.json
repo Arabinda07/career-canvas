@@ -1,0 +1,6 @@
+{
+  "name": "Psychometric Evaluation Platform",
+  "description": "A platform for psychometric evaluation exams based on RIASEC and Big Five, with student and counselor portals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
