@@ -1,41 +1,66 @@
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,900,400,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&family=Geist+Mono:wght@400;600&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-slate-50: #f8fafc;
-  --color-slate-100: #f1f5f9;
-  --color-slate-200: #e2e8f0;
-  --color-slate-400: #94a3b8;
-  --color-slate-500: #64748b;
-  --color-slate-900: #0f172a;
-  --color-blue-600: #2563eb;
-  --color-emerald-500: #10b981;
-  --color-amber-400: #fbbf24;
+  --color-canvas-white: #fdfdfd;
+  --color-pure-surface: #ffffff;
+  --color-charcoal-ink: #0d0d0d;
+  --color-slate-dark: #121212;
+  --color-steel-secondary: #525252;
+  --color-muted-slate: #737373;
+  --color-electric-blue: #2563eb;
+  --color-emerald-signal: #059669;
+  --color-deep-rose: #e11d48;
+  --color-amber-warmth: #d97706;
+  
+  --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Cabinet Grotesk", "Outfit", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --spacing-section: clamp(8rem, 20vh, 24rem);
 }
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 selection:bg-blue-600 selection:text-white;
+    @apply bg-canvas-white text-charcoal-ink antialiased selection:bg-electric-blue selection:text-white overflow-x-hidden;
+  }
+  
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight leading-[1.1] font-black uppercase;
+  }
+
+  p {
+    @apply font-sans leading-relaxed normal-case;
   }
 }
 
+@utility taste-card {
+  @apply bg-pure-surface border border-charcoal-ink/5 rounded-[2.5rem] p-12 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)];
+}
+
+@utility taste-button-primary {
+  @apply bg-charcoal-ink text-white px-10 py-4 rounded-full font-display font-black text-base transition-all duration-500 hover:bg-electric-blue active:scale-95 flex items-center justify-center gap-3 uppercase italic leading-none;
+}
+
+@utility taste-button-secondary {
+  @apply bg-pure-surface border border-charcoal-ink/10 text-charcoal-ink px-10 py-4 rounded-full font-display font-black text-base transition-all duration-500 hover:bg-canvas-white active:scale-95 flex items-center justify-center gap-3 uppercase italic leading-none;
+}
+
+@utility section-padding {
+  @apply py-[var(--spacing-section)];
+}
+
+@utility taste-input {
+  @apply w-full px-6 py-4 bg-pure-surface border border-charcoal-ink/10 rounded-2xl focus:outline-none focus:ring-4 focus:ring-electric-blue/5 focus:border-electric-blue/30 transition-all text-charcoal-ink placeholder:text-muted-slate font-display font-black uppercase italic tracking-widest text-base;
+}
+
 @layer components {
-  .geo-card {
-    @apply bg-white border-2 border-slate-900 p-6 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] hover:shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] transition-all duration-300;
-  }
-  
-  .geo-card-heavy {
-    @apply bg-white border-2 border-slate-900 p-6 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)];
+  .hero-h1 {
+    @apply text-[clamp(3.5rem,10vw,7rem)] font-black uppercase italic tracking-tighter leading-[0.8] w-full max-w-4xl;
   }
 
-  .geo-button {
-    @apply bg-slate-900 text-white px-6 py-3 text-xs font-black uppercase tracking-[0.2em] border-2 border-slate-900 hover:bg-white hover:text-slate-900 transition-colors duration-200 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
-  }
-  
-  .geo-button-primary {
-    @apply bg-blue-600 text-white px-6 py-3 text-xs font-black uppercase tracking-[0.2em] border-2 border-slate-900 hover:bg-slate-900 transition-colors duration-200;
-  }
-
-  .geo-input {
-    @apply w-full px-4 py-3 bg-white border-2 border-slate-900 focus:outline-none focus:ring-0 text-sm font-bold uppercase tracking-tight placeholder:text-slate-400;
+  .nav-pill {
+    @apply bg-white/60 backdrop-blur-3xl border border-charcoal-ink/5 rounded-full px-10 py-4 shadow-2xl shadow-charcoal-ink/5;
   }
 }

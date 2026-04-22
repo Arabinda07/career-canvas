@@ -1,33 +1,73 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Clock, ArrowRight, ArrowLeft, Shield } from "lucide-react";
+import { 
+  Clock, 
+  ArrowRight, 
+  ArrowLeft, 
+  ShieldCheck, 
+  CaretRight,
+  Pulse,
+  Warning
+} from "@phosphor-icons/react";
+import { motion } from "motion/react";
 
-const QUESTIONS = [
-  { id: 1, text: "I enjoy building or fixing things with my hands.", category: "RIASEC", subTopic: "Realistic" },
-  { id: 2, text: "I like analyzing data and solving complex problems.", category: "RIASEC", subTopic: "Investigative" },
-  { id: 3, text: "I love expressing myself through art, music, or writing.", category: "RIASEC", subTopic: "Artistic" },
-  { id: 4, text: "I feel energized when helping or teaching others.", category: "RIASEC", subTopic: "Social" },
-  { id: 5, text: "I enjoy taking leadership roles and persuading people.", category: "RIASEC", subTopic: "Enterprising" },
-  { id: 6, text: "I prefer working with structured tasks and keeping things organized.", category: "RIASEC", subTopic: "Conventional" },
-  { id: 7, text: "I am the life of the party.", category: "BigFive", subTopic: "Extraversion" },
-  { id: 8, text: "I sympathize with others' feelings.", category: "BigFive", subTopic: "Agreeableness" },
-  { id: 9, text: "I am always prepared and organized.", category: "BigFive", subTopic: "Conscientiousness" },
-  { id: 10, text: "I get stressed out easily.", category: "BigFive", subTopic: "Neuroticism" },
-  { id: 11, text: "I have a rich vocabulary and active imagination.", category: "BigFive", subTopic: "Openness" },
-];
+interface Question {
+  id: number;
+  text: string;
+  category: string;
+  subTopic: string;
+  type: 'MCQ' | 'LIKERT';
+  options?: string[];
+}
 
-const OPTIONS = [
-  { value: 1, label: "Strongly Disagree" },
-  { value: 2, label: "Disagree" },
-  { value: 3, label: "Neutral" },
-  { value: 4, label: "Agree" },
-  { value: 5, label: "Strongly Agree" },
+const APTITUDE_QUESTIONS: Question[] = Array.from({ length: 20 }, (_, i) => ({
+  id: i + 1,
+  text: [
+    "Select the most logical sequence for the following pattern...",
+    "What comes next in this numerical series: 2, 4, 8, 16...",
+    "Identify the synonym for 'Celerity' in the context of professional efficiency.",
+    "If all A are B, and some B are C, which statement must be true?",
+    "Calculate the percentage increase from 450 to 585."
+  ][i % 5],
+  category: "Aptitude",
+  subTopic: ["Logical", "Numerical", "Verbal"][i % 3],
+  type: "MCQ",
+  options: ["Option A", "Option B", "Option C", "Option D"]
+}));
+
+const PSYCHOMETRIC_QUESTIONS: Question[] = Array.from({ length: 50 }, (_, i) => ({
+  id: i + 21,
+  text: [
+    "I enjoy building things with precision tools.",
+    "I like to investigate why systems fail.",
+    "I love creating conceptual art.",
+    "I find joy in teaching complex topics to others.",
+    "I am often the one taking charge in a crisis.",
+    "I prefer clear instructions over creative freedom.",
+    "I am always prepared for the worst-case scenario.",
+    "I easily sympathize with those in distress.",
+    "I am methodical in my approach to work.",
+    "I get overwhelmed by large social gatherings."
+  ][i % 10],
+  category: i % 2 === 0 ? "RIASEC" : "BigFive",
+  subTopic: ["Realistic", "Investigative", "Artistic", "Social", "Enterprising", "Conventional", "Openness", "Conscientiousness", "Extraversion", "Agreeableness", "Neuroticism"][i % 11],
+  type: "LIKERT"
+}));
+
+const ALL_QUESTIONS: Question[] = [...APTITUDE_QUESTIONS, ...PSYCHOMETRIC_QUESTIONS];
+
+const LIKERT_OPTIONS = [
+  { value: 1, label: "strongly disagree" },
+  { value: 2, label: "disagree" },
+  { value: 3, label: "neutral" },
+  { value: 4, label: "agree" },
+  { value: 5, label: "strongly agree" },
 ];
 
 export default function Exam() {
   const navigate = useNavigate();
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [answers, setAnswers] = useState<Record<number, any>>({});
   const [timeLeft, setTimeLeft] = useState(60 * 60);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,10 +91,10 @@ export default function Exam() {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  const handleSelect = (val: number) => {
-    setAnswers({ ...answers, [QUESTIONS[currentIdx].id]: val });
-    if (currentIdx < QUESTIONS.length - 1) {
-      setTimeout(() => setCurrentIdx((curr) => curr + 1), 300);
+  const handleSelect = (val: any) => {
+    setAnswers({ ...answers, [ALL_QUESTIONS[currentIdx].id]: val });
+    if (currentIdx < ALL_QUESTIONS.length - 1) {
+      setTimeout(() => setCurrentIdx((curr) => curr + 1), 200);
     }
   };
 
@@ -63,115 +103,132 @@ export default function Exam() {
     setTimeout(() => {
       setIsSubmitting(false);
       navigate("/student/report");
-    }, 1500);
+    }, 2500);
   };
 
-  const q = QUESTIONS[currentIdx];
-  const progress = ((currentIdx) / QUESTIONS.length) * 100;
+  const q = ALL_QUESTIONS[currentIdx];
+  const progress = ((currentIdx + 1) / ALL_QUESTIONS.length) * 100;
 
   if (isSubmitting) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <div className="w-16 h-16 border-4 border-slate-200 border-t-blue-600 rounded-none animate-spin mb-8"></div>
-        <h2 className="text-4xl font-black italic uppercase italic tracking-tighter">Processing Core Metrics...</h2>
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mt-4 font-mono animate-pulse">Running Correlation Matrix v2.4</p>
+      <div className="fixed inset-0 bg-canvas-white z-[100] flex flex-col items-center justify-center p-8">
+        <div className="w-24 h-24 border-8 border-charcoal-ink/5 border-t-electric-blue rounded-full animate-spin mb-12" />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <h2 className="text-4xl font-display font-black tracking-tighter mb-6 uppercase italic leading-none">Processing Your Future.</h2>
+          <div className="flex flex-col gap-2">
+            <p className="text-[9px] font-display font-black text-muted-slate uppercase tracking-[4px] animate-pulse">Running Correlation Matrix v3.0...</p>
+            <p className="text-[9px] font-display font-black text-charcoal-ink uppercase tracking-[3px]">Calibrating {ALL_QUESTIONS.length} unique data points</p>
+          </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <main className="pt-32 pb-24 px-6 max-w-5xl mx-auto space-y-10">
       {/* HUD Header */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-8 bg-white p-6 border-2 border-slate-900 shadow-[4px_4px_0_0_rgba(15,23,42,1)]">
-        <div className="flex-1 w-full">
-          <div className="flex justify-between items-baseline mb-4">
-            <div className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Flow Progression 0{currentIdx + 1}/0{QUESTIONS.length}</div>
-            <div className="text-[10px] font-mono font-bold text-blue-600">{Math.round(progress)}% Complete</div>
-          </div>
-          <div className="h-4 w-full bg-slate-100 border border-slate-200 overflow-hidden">
-            <div 
-              className="h-full bg-blue-600 transition-all duration-500 ease-out"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 sticky top-24 z-40">
+        <div className="md:col-span-3 taste-card !p-6 !rounded-[1.5rem] flex items-center justify-between !border-charcoal-ink/10 shadow-2xl backdrop-blur-3xl bg-white/80">
+           <div className="flex flex-col">
+              <span className="text-[9px] font-display font-black uppercase text-muted-slate tracking-[3px]">Session Progress</span>
+              <span className="text-xl font-display font-black italic italic">0{currentIdx + 1} / {ALL_QUESTIONS.length}</span>
+           </div>
+           <div className="flex-1 max-w-sm mx-8 h-1.5 bg-canvas-white border border-charcoal-ink/5 rounded-full overflow-hidden">
+              <motion.div 
+                className="h-full bg-electric-blue"
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+              />
+           </div>
         </div>
-        
-        <div className="flex items-center space-x-4 bg-slate-900 text-white px-8 py-4 border-2 border-slate-900 shadow-[4px_4px_0_0_rgba(37,99,235,1)]">
-          <Clock className="w-5 h-5 text-blue-400" />
-          <span className="font-mono text-2xl font-black italic tracking-tighter">{formatTime(timeLeft)}</span>
+        <div className="bg-charcoal-ink text-pure-surface p-6 rounded-[1.5rem] flex items-center justify-center gap-3 border border-charcoal-ink">
+           <Clock weight="bold" size={20} className="text-electric-blue" />
+           <span className="font-display text-2xl font-black italic">{formatTime(timeLeft)}</span>
         </div>
       </div>
 
-      {/* Main Selection Area */}
-      <div className="bg-white p-12 border-2 border-slate-900 shadow-[12px_12px_0_0_rgba(15,23,42,1)] min-h-[500px] flex flex-col items-center justify-center text-center">
-        <div className="bg-slate-100 text-slate-400 px-3 py-1 text-[8px] font-black uppercase tracking-[0.3em] mb-12 border border-slate-200">
-           CATEGORY: {q.category} // TOPIC: {q.subTopic}
+      {/* Question Card */}
+      <motion.div 
+        key={currentIdx}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="taste-card !p-12 min-h-[500px] flex flex-col items-center justify-center text-center gap-12 border-charcoal-ink/5 shadow-none"
+      >
+        <div className="space-y-4">
+          <span className="px-5 py-1.5 bg-electric-blue/5 border border-electric-blue/10 rounded-full text-[9px] font-display font-black text-electric-blue uppercase tracking-[4px]">
+            {q.category} : {q.subTopic}
+          </span>
+          <h2 className="text-3xl md:text-5xl font-display font-black tracking-tighter leading-[1.1] max-w-4xl lowercase italic">
+            "{q.text}"
+          </h2>
         </div>
-        <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter mb-16 leading-none max-w-2xl">
-          "{q.text}"
-        </h2>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 w-full max-w-4xl">
-          {OPTIONS.map((opt) => {
-            const isSelected = answers[q.id] === opt.value;
-            return (
+
+        {q.type === "MCQ" ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-3xl">
+            {q.options?.map((opt: string, i: number) => (
+              <button
+                key={i}
+                onClick={() => handleSelect(opt)}
+                className={`taste-card !border-charcoal-ink/10 !text-left !py-6 !px-8 hover:!border-electric-blue group transition-all !rounded-2xl ${answers[q.id] === opt ? '!bg-charcoal-ink !text-white' : '!bg-pure-surface !text-charcoal-ink'}`}
+              >
+                <span className={`text-[9px] font-display font-black uppercase tracking-widest mr-4 transition-opacity ${answers[q.id] === opt ? 'opacity-50' : 'opacity-20 group-hover:opacity-100'}`}>0{i+1}</span> {opt}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 w-full max-w-5xl">
+            {LIKERT_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => handleSelect(opt.value)}
-                className={`group flex flex-col items-center justify-center p-6 border-2 transition-all duration-200 relative ${
-                  isSelected 
-                    ? "border-blue-600 bg-blue-50 text-blue-900 -translate-y-1 shadow-[4px_4px_0_0_rgba(37,99,235,1)]" 
-                    : "border-slate-100 bg-white hover:border-slate-300 text-slate-400 hover:text-slate-900"
-                }`}
+                className={`taste-card !border-charcoal-ink/5 !flex-col !gap-4 !py-10 !px-4 group transition-all !rounded-2xl ${answers[q.id] === opt.value ? '!bg-charcoal-ink !text-white' : '!bg-pure-surface !text-charcoal-ink hover:border-electric-blue/20'}`}
               >
-                <div className={`w-8 h-8 flex items-center justify-center border-2 mb-4 transition-all ${
-                  isSelected ? "bg-blue-600 border-slate-900 scale-110" : "bg-white border-slate-100 group-hover:border-slate-300"
-                }`}>
-                  {isSelected && <Shield className="w-4 h-4 text-white" />}
+                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${answers[q.id] === opt.value ? 'bg-electric-blue border-electric-blue' : 'bg-transparent border-charcoal-ink/10 group-hover:border-electric-blue/30'}`}>
+                  {answers[q.id] === opt.value && <ShieldCheck weight="bold" size={16} className="text-white" />}
                 </div>
-                <div className="text-[10px] font-black uppercase tracking-widest leading-tight">
-                  {opt.label}
-                </div>
-                <div className="text-[8px] font-mono mt-2 opacity-40">VAL_0{opt.value}</div>
+                <span className="text-[9px] font-display font-black uppercase tracking-[3px] leading-tight">{opt.label}</span>
               </button>
-            )
-          })}
-        </div>
-      </div>
+            ))}
+          </div>
+        )}
+      </motion.div>
 
-      {/* Bottom Controls */}
-      <div className="flex justify-between items-center bg-slate-900 p-6 border-2 border-slate-900 shadow-[4px_4px_0_0_rgba(37,99,235,1)]">
+      {/* Navigation */}
+      <div className="flex justify-between items-center gap-8">
         <button
-          onClick={() => setCurrentIdx((curr) => curr - 1)}
+          onClick={() => setCurrentIdx(prev => prev - 1)}
           disabled={currentIdx === 0}
-          className="text-[10px] font-black uppercase tracking-[0.2em] text-white hover:text-blue-400 disabled:opacity-20 transition flex items-center"
+          className="taste-button-secondary !py-4 !px-8 !text-sm !border-charcoal-ink/10 disabled:opacity-20"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" /> Previous Record
+          <ArrowLeft weight="bold" className="mr-2" /> Previous
         </button>
 
         <div className="flex-1 flex justify-center">
-           <div className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-500">Security Checkpoint 0{currentIdx + 1}_V2.4</div>
+           <span className="text-[9px] font-display font-black text-muted-slate uppercase tracking-[4px] opacity-30">shard_0x{currentIdx.toString(16).toUpperCase()}</span>
         </div>
 
-        {currentIdx === QUESTIONS.length - 1 ? (
+        {currentIdx === ALL_QUESTIONS.length - 1 ? (
           <button
             onClick={handleSubmit}
-            disabled={Object.keys(answers).length < QUESTIONS.length}
-            className="bg-amber-400 text-slate-900 px-10 py-3 border-2 border-slate-900 text-[10px] font-black uppercase tracking-[0.2em] shadow-[4px_4px_0_0_rgba(15,23,42,1)] hover:bg-white transition-all disabled:opacity-50"
+            disabled={Object.keys(answers).length < ALL_QUESTIONS.length}
+            className="taste-button-primary !bg-amber-warmth !border-amber-warmth !text-charcoal-ink !py-4 !px-8 !text-sm disabled:opacity-30"
           >
-            Finalize Submission
+            Finalize Profile <Pulse weight="bold" size={16} className="ml-2 animate-pulse" />
           </button>
         ) : (
           <button
-            onClick={() => setCurrentIdx((curr) => curr + 1)}
+            onClick={() => setCurrentIdx(prev => prev + 1)}
             disabled={!answers[q.id]}
-            className="text-[10px] font-black uppercase tracking-[0.2em] text-white hover:text-amber-400 disabled:opacity-20 transition flex items-center"
+            className="taste-button-primary !py-4 !px-10 !text-sm disabled:opacity-30"
           >
-            Next Record <ArrowRight className="w-4 h-4 ml-2" />
+            Next <ArrowRight weight="bold" className="ml-2" />
           </button>
         )}
       </div>
-
-    </div>
+    </main>
   );
 }

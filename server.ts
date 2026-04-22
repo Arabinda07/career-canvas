@@ -25,6 +25,28 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
+  // Validation Logic
+  const validateInput = (type: string, value: string) => {
+    switch (type) {
+      case 'email':
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      case 'password':
+        // at least 8 chars, one uppercase, one lowercase, one number
+        return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(value);
+      case 'classCode':
+        // Format: FC-XXX-XXXX-X (e.g. FC-KVS-2026-A)
+        return /^FC-[A-Z]{3,6}-\d{4}-[A-Z0-9]$/.test(value);
+      default:
+        return true;
+    }
+  };
+
+  app.post("/api/validate", (req, res) => {
+    const { type, value } = req.body;
+    const isValid = validateInput(type, value);
+    res.json({ isValid });
+  });
+
   app.post("/api/create-order", async (req, res) => {
     try {
       const { amount, receipt } = req.body;

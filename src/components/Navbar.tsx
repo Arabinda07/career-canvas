@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Brain } from "lucide-react";
+import { Sparkle } from "@phosphor-icons/react";
 
 export default function Navbar() {
   const location = useLocation();
@@ -8,21 +8,29 @@ export default function Navbar() {
   if (isAuthPage) return null;
 
   return (
-    <nav className="h-16 border-b-2 border-slate-900 flex items-center justify-between px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="max-w-7xl mx-auto flex items-center justify-between w-full">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 border-2 border-slate-900 flex items-center justify-center">
-             <Brain className="w-5 h-5 text-white" />
+    <nav className="h-20 bg-canvas-white flex items-center transition-all duration-700 border-b border-charcoal-ink/5">
+      <div className="max-w-7xl mx-auto w-full px-6 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="w-10 h-10 bg-charcoal-ink rounded-xl flex items-center justify-center transition-all group-hover:scale-110 group-hover:rotate-6">
+            <Sparkle weight="fill" size={20} className="text-electric-blue" />
           </div>
-          <span className="font-black text-xl tracking-tighter uppercase hidden sm:block">PsychMetric Pro</span>
+          <div className="flex flex-col">
+            <span className="font-display font-black text-xl italic tracking-tighter leading-none text-charcoal-ink">Future Canvas.</span>
+            <span className="text-[9px] font-display font-black tracking-[4px] text-muted-slate uppercase italic">Career Protocol V3</span>
+          </div>
         </Link>
-        <div className="flex items-center gap-4 sm:gap-6 text-slate-900">
-          <Link to="/auth?role=student" className="text-[10px] font-bold uppercase tracking-widest hover:text-blue-600">
-            Student Login
-          </Link>
-          <Link to="/auth?role=counselor" className="bg-slate-900 text-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest border-2 border-slate-900 hover:bg-white hover:text-slate-900 transition-colors">
-            Counselor Login
-          </Link>
+        <div className="flex items-center gap-10">
+          <div className="hidden lg:flex items-center gap-8">
+            <Link to="/science" className="text-[9px] uppercase tracking-[3px] font-display font-black text-muted-slate hover:text-electric-blue transition-all italic">The Science</Link>
+            <Link to="/#about" className="text-[9px] uppercase tracking-[3px] font-display font-black text-muted-slate hover:text-electric-blue transition-all italic">The Framework</Link>
+          </div>
+          <div className="h-6 w-[1px] bg-charcoal-ink/10 hidden md:block" />
+          <div className="flex items-center gap-6">
+            <Link to="/auth?role=student" className="hidden sm:block text-[9px] uppercase font-display font-black tracking-[3px] text-muted-slate hover:text-charcoal-ink italic">Login</Link>
+            <Link to="/start-assessment" className="taste-button-primary !px-6 !py-3 !text-[9px] tracking-[4px]">
+              Start Assessment
+            </Link>
+          </div>
         </div>
       </div>
     </nav>
